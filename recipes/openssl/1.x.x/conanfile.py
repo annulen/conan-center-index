@@ -114,8 +114,7 @@ class OpenSSLConan(ConanFile):
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            if not self._win_bash:
-                self.build_requires("strawberryperl/5.30.0.1")
+            self.build_requires("strawberryperl/5.30.0.1")
             if not self.options.no_asm and not tools.which("nasm"):
                 self.build_requires("nasm/2.14")
         if self._win_bash:
@@ -557,9 +556,10 @@ class OpenSSLConan(ConanFile):
 
     @property
     def _perl(self):
-        if tools.os_info.is_windows and not self._win_bash:
+        if tools.os_info.is_windows:
             # enforce strawberry perl, otherwise wrong perl could be used (from Git bash, MSYS, etc.)
-            return os.path.join(self.deps_cpp_info["strawberryperl"].rootpath, "bin", "perl.exe")
+            perl_path = os.path.join(self.deps_cpp_info["strawberryperl"].rootpath, "bin", "perl.exe")
+            return tools.unix_path(perl_path) if self._win_bash else perl_path
         return "perl"
 
     @property
